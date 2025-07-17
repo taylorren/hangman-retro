@@ -1,0 +1,24 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom retro styles */
+@layer base {
+  body {
+    @apply bg-retro-dark text-retro-green font-mono;
+  }
+}
+
+@layer components {
+  .retro-button {
+    @apply bg-retro-gray border-2 border-retro-green text-retro-green px-4 py-2 font-mono hover:bg-retro-green hover:text-retro-dark transition-colors duration-200;
+  }
+  
+  .retro-button:disabled {
+    @apply opacity-50 cursor-not-allowed hover:bg-retro-gray hover:text-retro-green;
+  }
+  
+  .retro-card {
+    @apply bg-retro-gray border-2 border-retro-green p-6 rounded-none;
+  }
+}

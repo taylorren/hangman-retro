@@ -1,0 +1,270 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Import retro terminal font */
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
+
+/* Custom retro styles */
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+  
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    @apply bg-retro-dark text-retro-green font-mono;
+    font-family: 'JetBrains Mono', 'Courier New', monospace;
+    background-image: 
+      radial-gradient(rgba(0, 255, 0, 0.03) 1px, transparent 1px);
+    background-size: 20px 20px;
+    background-attachment: fixed;
+    overflow-x: hidden;
+  }
+  
+  /* Scanline effect */
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      transparent 50%, 
+      rgba(0, 255, 0, 0.02) 50%
+    );
+    background-size: 100% 4px;
+    pointer-events: none;
+    z-index: 1000;
+    animation: scanlines 0.1s linear infinite;
+  }
+  
+  /* Screen flicker effect */
+  body::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 255, 0, 0.01);
+    pointer-events: none;
+    z-index: 999;
+    animation: flicker 0.15s infinite linear alternate;
+  }
+}
+
+@layer components {
+  .retro-button {
+    @apply bg-retro-gray border-2 border-retro-green text-retro-green px-4 py-2 font-mono hover:bg-retro-green hover:text-retro-dark transition-all duration-200;
+    text-shadow: 0 0 10px currentColor;
+    box-shadow: 
+      0 0 10px rgba(0, 255, 0, 0.2),
+      inset 0 0 10px rgba(0, 255, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .retro-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(0, 255, 0, 0.2),
+      transparent
+    );
+    transition: left 0.5s;
+  }
+  
+  .retro-button:hover::before {
+    left: 100%;
+  }
+  
+  .retro-button:disabled {
+    @apply opacity-50 cursor-not-allowed hover:bg-retro-gray hover:text-retro-green;
+  }
+  
+  .retro-card {
+    @apply bg-retro-gray border-2 border-retro-green p-6;
+    background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%);
+    box-shadow: 
+      0 0 20px rgba(0, 255, 0, 0.1),
+      inset 0 0 20px rgba(0, 255, 0, 0.05),
+      0 0 40px rgba(0, 255, 0, 0.05);
+    border-radius: 0;
+    position: relative;
+  }
+  
+  .retro-card::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, #00ff00, #ffbf00, #00ff00);
+    z-index: -1;
+    border-radius: inherit;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  
+  .retro-card:hover::before {
+    opacity: 0.3;
+  }
+  
+  /* Terminal text effects */
+  .terminal-text {
+    text-shadow: 
+      0 0 5px currentColor,
+      0 0 10px currentColor,
+      0 0 15px currentColor;
+    animation: textGlow 2s ease-in-out infinite alternate;
+  }
+  
+  .terminal-title {
+    @apply text-retro-amber;
+    text-shadow: 
+      0 0 10px currentColor,
+      0 0 20px currentColor,
+      0 0 30px currentColor;
+    animation: titlePulse 3s ease-in-out infinite;
+    letter-spacing: 0.1em;
+  }
+  
+  /* Typing animation */
+  .typing-animation {
+    overflow: hidden;
+    border-right: 2px solid #00ff00;
+    white-space: nowrap;
+    animation: 
+      typing 2s steps(20, end),
+      blink-caret 0.75s step-end infinite;
+  }
+  
+  /* Matrix-style background */
+  .matrix-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: -1;
+    opacity: 0.1;
+  }
+  
+  /* Glitch effect */
+  .glitch {
+    position: relative;
+  }
+  
+  .glitch::before,
+  .glitch::after {
+    content: attr(data-text);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+  
+  .glitch::before {
+    animation: glitch-1 0.5s infinite;
+    color: #ff0000;
+    z-index: -1;
+  }
+  
+  .glitch::after {
+    animation: glitch-2 0.5s infinite;
+    color: #0000ff;
+    z-index: -2;
+  }
+}
+
+/* Animations */
+@keyframes scanlines {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(4px); }
+}
+
+@keyframes flicker {
+  0% { opacity: 1; }
+  100% { opacity: 0.98; }
+}
+
+@keyframes textGlow {
+  from {
+    text-shadow: 
+      0 0 5px currentColor,
+      0 0 10px currentColor,
+      0 0 15px currentColor;
+  }
+  to {
+    text-shadow: 
+      0 0 10px currentColor,
+      0 0 20px currentColor,
+      0 0 30px currentColor;
+  }
+}
+
+@keyframes titlePulse {
+  0%, 100% {
+    text-shadow: 
+      0 0 10px currentColor,
+      0 0 20px currentColor,
+      0 0 30px currentColor;
+  }
+  50% {
+    text-shadow: 
+      0 0 20px currentColor,
+      0 0 30px currentColor,
+      0 0 40px currentColor;
+  }
+}
+
+@keyframes typing {
+  from { width: 0; }
+  to { width: 100%; }
+}
+
+@keyframes blink-caret {
+  from, to { border-color: transparent; }
+  50% { border-color: #00ff00; }
+}
+
+@keyframes glitch-1 {
+  0%, 100% { transform: translate(0); }
+  20% { transform: translate(-2px, 2px); }
+  40% { transform: translate(-2px, -2px); }
+  60% { transform: translate(2px, 2px); }
+  80% { transform: translate(2px, -2px); }
+}
+
+@keyframes glitch-2 {
+  0%, 100% { transform: translate(0); }
+  20% { transform: translate(2px, -2px); }
+  40% { transform: translate(2px, 2px); }
+  60% { transform: translate(-2px, -2px); }
+  80% { transform: translate(-2px, 2px); }
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+  body {
+    background-size: 15px 15px;
+  }
+  
+  .retro-card {
+    @apply p-4;
+  }
+}
