@@ -93,7 +93,7 @@ const revealedCount = computed(() => {
 })
 
 const totalLetters = computed(() => {
-  return new Set(props.currentWord.split('')).size
+  return props.currentWord.length
 })
 
 const progressPercentage = computed(() => {

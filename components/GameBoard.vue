@@ -46,7 +46,7 @@
             <div class="section-header">
               <h3 class="section-title">WORD</h3>
               <div class="section-indicator">
-                {{ revealedLettersCount }}/{{ totalUniqueLetters }}
+                {{ revealedLettersCount }}/{{ totalLetters }}
               </div>
             </div>
             <WordDisplay :current-word="gameState.currentWord" :correct-guesses="gameState.correctGuesses"
@@ -87,6 +87,7 @@
 import { ref, computed, onMounted } from 'vue'
 import type { GameState, DifficultyLevel } from '../types/game'
 import { getOllamaService } from '../services/OllamaService'
+import { getAudioService } from '../services/AudioService'
 
 // Import components
 import DifficultySelector from './DifficultySelector.vue'
@@ -108,17 +109,21 @@ const gameState = ref<GameState>({
 
 // Services
 const ollamaService = getOllamaService()
+const audioService = getAudioService()
 
 // Computed properties
 const revealedLettersCount = computed(() => {
   if (!gameState.value.currentWord) return 0
-  const uniqueLetters = [...new Set(gameState.value.currentWord.split(''))]
-  return uniqueLetters.filter(letter => gameState.value.correctGuesses.includes(letter)).length
+  // Count actual revealed letter positions, not unique letters
+  return gameState.value.currentWord.split('').filter(letter =>
+    gameState.value.correctGuesses.includes(letter)
+  ).length
 })
 
-const totalUniqueLetters = computed(() => {
+const totalLetters = computed(() => {
   if (!gameState.value.currentWord) return 0
-  return [...new Set(gameState.value.currentWord.split(''))].length
+  // Return actual word length, not unique letters count
+  return gameState.value.currentWord.length
 })
 
 const gameStatusClass = computed(() => {
@@ -174,6 +179,9 @@ const getFallbackWord = (difficulty: DifficultyLevel): string => {
 
 // Event handlers
 const handleDifficultySelected = async (difficulty: DifficultyLevel) => {
+  // Play button click sound
+  audioService.playButtonClick()
+  
   gameState.value.difficulty = difficulty
 
   try {
@@ -200,35 +208,41 @@ const handleLetterSelected = (letter: string) => {
     return
   }
 
+  // Play letter selection sound
+  audioService.playLetterSelect()
+
   // Add letter to guessed letters
   gameState.value.guessedLetters.push(letter)
 
   // Check if letter is in the word
   if (gameState.value.currentWord.includes(letter)) {
-    // Correct guess
+    // Correct guess - play success sound
+    setTimeout(() => audioService.playCorrectGuess(), 100)
     gameState.value.correctGuesses.push(letter)
   } else {
-    // Incorrect guess
+    // Incorrect guess - play error sound
+    setTimeout(() => audioService.playIncorrectGuess(), 100)
     gameState.value.incorrectGuesses++
   }
 
   // Update game status
+  const previousStatus = gameState.value.gameStatus
   updateGameStatus()
+  
+  // Play victory/defeat sounds when game ends
+  if (previousStatus === 'playing' && gameState.value.gameStatus === 'won') {
+    setTimeout(() => audioService.playVictory(), 300)
+  } else if (previousStatus === 'playing' && gameState.value.gameStatus === 'lost') {
+    setTimeout(() => audioService.playDefeat(), 300)
+  }
 }
 
-const handleRestartGame = () => {
-  // Reset guesses but keep the same word and difficulty
-  gameState.value.guessedLetters = []
-  gameState.value.correctGuesses = []
-  gameState.value.incorrectGuesses = 0
-  gameState.value.gameStatus = 'playing'
-}
-
-const handleNewGame = async () => {
+const handleRestartGame = async () => {
+  // "Play Again": Keep current difficulty, get a new word
   if (!gameState.value.difficulty) return
 
   try {
-    // Get a new word
+    // Get a new word with the same difficulty
     const word = await ollamaService.generateWord(gameState.value.difficulty)
     gameState.value.currentWord = word.toUpperCase()
   } catch (error) {
@@ -237,21 +251,29 @@ const handleNewGame = async () => {
     gameState.value.currentWord = fallbackWord.toUpperCase()
   }
 
-  // Reset all game state
+  // Reset all game state but keep difficulty
   gameState.value.guessedLetters = []
   gameState.value.correctGuesses = []
   gameState.value.incorrectGuesses = 0
   gameState.value.gameStatus = 'playing'
 }
 
-const handleResetGame = () => {
-  // Reset to difficulty selection
+const handleNewGame = () => {
+  // "New Game": Return to difficulty selection
   gameState.value.currentWord = ''
   gameState.value.guessedLetters = []
   gameState.value.correctGuesses = []
   gameState.value.incorrectGuesses = 0
   gameState.value.gameStatus = 'playing'
-  gameState.value.difficulty = 'cet4' // 重置为默认难度而不是undefined
+  gameState.value.difficulty = 'cet4' // 重置为默认难度
+}
+
+const handleResetGame = () => {
+  // "Reset": Reset current game (same word, clear guesses)
+  gameState.value.guessedLetters = []
+  gameState.value.correctGuesses = []
+  gameState.value.incorrectGuesses = 0
+  gameState.value.gameStatus = 'playing'
 }
 
 // Initialize component
