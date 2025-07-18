@@ -13,6 +13,7 @@
     "test:watch": "vitest --watch",
     "test:coverage": "vitest run --coverage",
     "test:ollama": "tsx tests/ollama-connection-test.ts",
+    "debug:ollama": "node tests/debug-ollama.js",
     "test:unit": "vitest run tests/game-logic.test.ts",
     "test:components": "vitest run tests/components.test.ts",
     "test:integration": "vitest run tests/integration.test.ts"

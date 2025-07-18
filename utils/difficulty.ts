@@ -64,11 +64,9 @@ export function getFallbackWordFromCategory(difficulty: DifficultyLevel, categor
  * Validate if a word meets the difficulty requirements
  */
 export function validateWordForDifficulty(word: string, difficulty: DifficultyLevel): boolean {
-  const config = getDifficultyConfig(difficulty)
-  if (!config) return false
-
-  const wordLength = word.length
-  return wordLength >= config.wordLength.min && wordLength <= config.wordLength.max
+  // Length validation removed as requested - accepts any length word
+  // Only check if word is not empty and contains only letters
+  return word.length > 0 && /^[a-zA-Z]+$/.test(word)
 }
 
 /**
@@ -93,27 +91,28 @@ export function getOllamaPrompt(difficulty: DifficultyLevel): string {
 export function getEnhancedOllamaPrompt(difficulty: DifficultyLevel): string {
   // 中文难度级别映射
   const difficultyNames = {
-    cet4: '英语四级',
-    cet6: '英语六级',
-    toefl: '托福',
+    cet4: 'CET-4',
+    cet6: 'CET-6',
+    toefl: 'TOEFL',
     gre: 'GRE'
   }
 
   const difficultyName = difficultyNames[difficulty] || difficulty
 
-  // 添加更多随机元素
-  const randomTime = Date.now() % 1000  // 增大随机种子范围
+  // 使用更有效的随机性：时间和编号
+  const randomTime = Date.now() % 1000
+  const randomNumber = Math.floor(Math.random() * 1000)
 
   const variations = [
-    `随便给一个${difficultyName}单词，只返回单词。不许重复。随机种子${randomTime}${randomTime}`,
-    `找到一个${difficultyName}英语单词，随机数${randomTime}，只要单词`,
-    `随机生成${difficultyName}单词，时间${randomTime}，仅返回单词`,
-    `给我${difficultyName}单词，编号${randomTime}，只返回英文单词`,
-    `有没有一个${difficultyName}词汇，ID${randomTime}，只要英文单词`,
-    `请提供${difficultyName}单词，序号${randomTime}`
+    `给我一个${difficultyName}单词，时间${randomTime}`,
+    `请提供${difficultyName}单词，编号${randomNumber}`,
+    `${difficultyName}单词，时间${randomTime}，只要单词`,
+    `${difficultyName}词汇，编号${randomNumber}，仅返回单词`,
+    `随机${difficultyName}单词，时间${randomTime}`,
+    `生成${difficultyName}单词，编号${randomNumber}`
   ]
 
-  return variations[Math.floor(Math.random() * variations.length)] || `给我一个${difficultyName}单词`
+  return variations[Math.floor(Math.random() * variations.length)] || `给我一个${difficultyName}单词，时间${randomTime}`
 }
 
 /**

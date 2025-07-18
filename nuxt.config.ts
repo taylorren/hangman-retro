@@ -20,6 +20,18 @@ export default defineNuxtConfig({
     },
   },
   
+  // Runtime configuration to expose environment variables to client
+  runtimeConfig: {
+    // Private keys (only available on server-side)
+    doubaoApiKey: process.env.DOUBAO_API_KEY,
+    doubaoModelEndpoint: process.env.DOUBAO_MODEL_ENDPOINT,
+    
+    // Public keys (exposed to client-side)
+    public: {
+      // Add any public environment variables here if needed
+    }
+  },
+  
   // Build configuration
   build: {
     transpile: ['flowbite']

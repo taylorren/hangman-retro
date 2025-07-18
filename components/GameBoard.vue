@@ -166,10 +166,10 @@ const updateGameStatus = () => {
 
 // Fallback words for each difficulty
 const fallbackWords = {
-  cet4: ['APPLE', 'HOUSE', 'WATER', 'HAPPY', 'STUDY', 'FRIEND', 'SCHOOL', 'FAMILY'],
-  cet6: ['CHALLENGE', 'KNOWLEDGE', 'ENVIRONMENT', 'TECHNOLOGY', 'UNIVERSITY', 'DEVELOPMENT'],
-  toefl: ['SOPHISTICATED', 'COMPREHENSIVE', 'FUNDAMENTAL', 'CONTEMPORARY', 'SIGNIFICANT'],
-  gre: ['UBIQUITOUS', 'PERSPICACIOUS', 'MAGNANIMOUS', 'SERENDIPITY', 'EPHEMERAL']
+  cet4: ['CAT', 'DOG', 'BOOK', 'TREE', 'HOUSE', 'WATER', 'HAPPY', 'MUSIC'],
+  cet6: ['COMPUTER', 'LANGUAGE', 'CULTURE', 'SCIENCE', 'HISTORY', 'NATURE', 'FREEDOM', 'JOURNEY'],
+  toefl: ['ARCHITECTURE', 'PHILOSOPHY', 'DEMOCRACY', 'TECHNOLOGY', 'ENVIRONMENT', 'LITERATURE', 'PSYCHOLOGY', 'ECONOMICS'],
+  gre: ['METAMORPHOSIS', 'JUXTAPOSITION', 'SERENDIPITY', 'PERSPICACIOUS', 'UBIQUITOUS', 'EPHEMERAL', 'QUINTESSENTIAL', 'MAGNANIMOUS'],
 }
 
 const getFallbackWord = (difficulty: DifficultyLevel): string => {
@@ -181,17 +181,31 @@ const getFallbackWord = (difficulty: DifficultyLevel): string => {
 const handleDifficultySelected = async (difficulty: DifficultyLevel) => {
   // Play button click sound
   audioService.playButtonClick()
-  
+
   gameState.value.difficulty = difficulty
 
   try {
     // Try to get word from Ollama service
+    console.log('🔄 Attempting to generate word for difficulty:', difficulty)
+    
+    // First check if the service is available
+    const isAvailable = await ollamaService.isAvailable()
+    console.log('🔍 Service availability check:', isAvailable)
+    
+    if (!isAvailable) {
+      throw new Error('Service is not available')
+    }
+    
     const word = await ollamaService.generateWord(difficulty)
+    console.log('✅ Successfully generated word from API:', word)
     gameState.value.currentWord = word.toUpperCase()
   } catch (error) {
-    console.warn('Ollama service unavailable, using fallback word:', error)
+    console.error('❌ API service failed, using fallback word:', error)
+    console.error('❌ Error details:', error instanceof Error ? error.message : String(error))
+    
     // Use fallback word based on difficulty
     const fallbackWord = getFallbackWord(difficulty)
+    console.log('🔄 Using fallback word:', fallbackWord)
     gameState.value.currentWord = fallbackWord.toUpperCase()
   }
 
@@ -228,7 +242,7 @@ const handleLetterSelected = (letter: string) => {
   // Update game status
   const previousStatus = gameState.value.gameStatus
   updateGameStatus()
-  
+
   // Play victory/defeat sounds when game ends
   if (previousStatus === 'playing' && gameState.value.gameStatus === 'won') {
     setTimeout(() => audioService.playVictory(), 300)
