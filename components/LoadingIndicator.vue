@@ -15,8 +15,14 @@
                 <!-- Loading message with animated dots -->
                 <div class="loading-line">
                     <span class="prompt">system@hangman:~$</span>
-                    <span class="command">{{ loadingMessage }}</span>
-                    <span class="animated-dots">{{ animatedDots }}</span>
+                    <span class="command">
+                        <span v-if="props.difficulty">
+                            CONSULTING AI FOR 
+                            <span class="difficulty-blink">{{ difficultyDisplay }}</span>
+                            VOCABULARY
+                        </span>
+                        <span v-else>{{ props.message }}</span>
+                    </span>
                 </div>
 
                 <!-- Progress bar -->
@@ -82,9 +88,16 @@ const animatedDots = computed(() => {
     return '.'.repeat(dotCount.value)
 })
 
+const difficultyDisplay = computed(() => {
+    if (props.difficulty) {
+        return props.difficulty.toUpperCase().replace('CET', 'CET-')
+    }
+    return ''
+})
+
 const loadingMessage = computed(() => {
     if (props.difficulty) {
-        return `CONSULTING AI FOR ${props.difficulty.toUpperCase()} VOCABULARY`
+        return `CONSULTING AI FOR ${difficultyDisplay.value} VOCABULARY`
     }
     return props.message
 })
@@ -185,6 +198,12 @@ onUnmounted(() => {
 .animated-dots {
     @apply text-retro-green;
     @apply w-8 inline-block;
+}
+
+.difficulty-blink {
+    @apply text-retro-amber font-bold;
+    animation: difficulty-flash 1.2s infinite;
+    text-shadow: 0 0 10px rgba(255, 191, 0, 0.8);
 }
 
 .progress-container {
@@ -303,6 +322,29 @@ onUnmounted(() => {
 
     100% {
         transform: translateY(4px);
+    }
+}
+
+@keyframes difficulty-flash {
+    0%, 50% {
+        opacity: 1;
+        text-shadow: 0 0 10px rgba(255, 191, 0, 0.8);
+        transform: scale(1);
+    }
+    25% {
+        opacity: 0.3;
+        text-shadow: 0 0 5px rgba(255, 191, 0, 0.4);
+        transform: scale(0.95);
+    }
+    75% {
+        opacity: 1;
+        text-shadow: 0 0 15px rgba(255, 191, 0, 1);
+        transform: scale(1.05);
+    }
+    100% {
+        opacity: 1;
+        text-shadow: 0 0 10px rgba(255, 191, 0, 0.8);
+        transform: scale(1);
     }
 }
 

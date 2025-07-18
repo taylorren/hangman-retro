@@ -7,14 +7,8 @@
     </div>
 
     <!-- Loading Indicator (shown during word generation) -->
-    <LoadingIndicator 
-      v-if="isLoading"
-      :message="loadingMessage"
-      :difficulty="gameState.difficulty"
-      :show-progress="showLoadingProgress"
-      :progress="loadingProgress"
-      :status-messages="loadingStatusMessages"
-    />
+    <LoadingIndicator v-if="isLoading" :message="loadingMessage" :difficulty="gameState.difficulty"
+      :show-progress="showLoadingProgress" :progress="loadingProgress" :status-messages="loadingStatusMessages" />
 
     <!-- Difficulty Selection (shown when no game is active) -->
     <div v-if="!gameState.currentWord && !isLoading" class="difficulty-section">
@@ -127,7 +121,7 @@ const isLoading = ref(false)
 const loadingMessage = ref('GENERATING WORD')
 const showLoadingProgress = ref(true)
 const loadingProgress = ref(0)
-const loadingStatusMessages = ref<Array<{type: 'info' | 'success' | 'warning' | 'error', text: string}>>([])
+const loadingStatusMessages = ref<Array<{ type: 'info' | 'success' | 'warning' | 'error', text: string }>>([])
 const loadingInterval = ref<NodeJS.Timeout>()
 
 // Computed properties
@@ -201,26 +195,45 @@ const startLoading = (difficulty: DifficultyLevel) => {
   isLoading.value = true
   loadingProgress.value = 0
   loadingStatusMessages.value = []
-  loadingMessage.value = `CONSULTING AI FOR ${difficulty.toUpperCase()} VOCABULARY`
-  
-  // Add initial status message
+
+  // Contextual loading messages based on difficulty
+  const difficultyMessages = {
+    cet4: 'CONSULTING AI FOR CET-4 VOCABULARY',
+    cet6: 'CONSULTING AI FOR CET-6 VOCABULARY',
+    toefl: 'CONSULTING AI FOR TOEFL VOCABULARY',
+    gre: 'CONSULTING AI FOR GRE VOCABULARY'
+  }
+
+  loadingMessage.value = difficultyMessages[difficulty] || 'GENERATING WORD'
+
+  // Add contextual initial status message
+  const difficultyDescriptions = {
+    cet4: 'basic English vocabulary (4-6 letters)',
+    cet6: 'intermediate English vocabulary (6-8 letters)',
+    toefl: 'academic English vocabulary (8-12 letters)',
+    gre: 'advanced English vocabulary (8-12 letters)'
+  }
+
   addStatusMessage('info', `Initializing ${difficulty.toUpperCase()} word generation...`)
-  
-  // Simulate progress with realistic timing
+  addStatusMessage('info', `Target: ${difficultyDescriptions[difficulty]}`)
+
+  // Simulate progress with realistic timing and contextual messages
   loadingInterval.value = setInterval(() => {
     if (loadingProgress.value < 90) {
       const increment = Math.random() * 15 + 5 // Random progress between 5-20%
       loadingProgress.value = Math.min(90, loadingProgress.value + increment) // Cap at 90%
-      
-      // Add contextual status messages based on progress
-      if (loadingProgress.value > 20 && loadingProgress.value < 25) {
-        addStatusMessage('info', 'Connecting to AI service...')
-      } else if (loadingProgress.value > 40 && loadingProgress.value < 45) {
-        addStatusMessage('info', 'Processing difficulty parameters...')
-      } else if (loadingProgress.value > 60 && loadingProgress.value < 65) {
-        addStatusMessage('info', 'Generating vocabulary...')
-      } else if (loadingProgress.value > 80 && loadingProgress.value < 85) {
-        addStatusMessage('info', 'Validating word format...')
+
+      // Add contextual status messages based on progress and difficulty
+      if (loadingProgress.value > 15 && loadingProgress.value < 20) {
+        addStatusMessage('info', 'Establishing secure connection to AI service...')
+      } else if (loadingProgress.value > 30 && loadingProgress.value < 35) {
+        addStatusMessage('info', `Configuring ${difficulty.toUpperCase()} difficulty parameters...`)
+      } else if (loadingProgress.value > 50 && loadingProgress.value < 55) {
+        addStatusMessage('info', 'AI processing vocabulary database...')
+      } else if (loadingProgress.value > 70 && loadingProgress.value < 75) {
+        addStatusMessage('info', 'Generating contextually appropriate word...')
+      } else if (loadingProgress.value > 85 && loadingProgress.value < 90) {
+        addStatusMessage('info', 'Validating word complexity and format...')
       }
     }
   }, 300)
@@ -230,9 +243,9 @@ const stopLoading = (success: boolean, word?: string, error?: string) => {
   if (loadingInterval.value) {
     clearInterval(loadingInterval.value)
   }
-  
+
   loadingProgress.value = 100
-  
+
   if (success && word) {
     // Don't reveal the word! Just show success with word length
     addStatusMessage('success', `Word generated successfully (${word.length} letters)`)
@@ -254,7 +267,7 @@ const addStatusMessage = (type: 'info' | 'success' | 'warning' | 'error', text: 
     text,
     timestamp: Date.now()
   })
-  
+
   // Keep only last 5 messages
   if (loadingStatusMessages.value.length > 5) {
     loadingStatusMessages.value.shift()
@@ -274,30 +287,36 @@ const handleDifficultySelected = async (difficulty: DifficultyLevel) => {
   try {
     // Try to get word from Ollama service
     console.log('🔄 Attempting to generate word for difficulty:', difficulty)
-    
+
     // First check if the service is available
+    addStatusMessage('info', 'Checking AI service connectivity...')
     const isAvailable = await ollamaService.isAvailable()
     console.log('🔍 Service availability check:', isAvailable)
-    
+
     if (!isAvailable) {
+      addStatusMessage('warning', 'AI service temporarily unavailable')
       throw new Error('Service is not available')
     }
-    
+
+    addStatusMessage('info', 'AI service connected, generating word...')
     const word = await ollamaService.generateWord(difficulty)
     console.log('✅ Successfully generated word from API')
     gameState.value.currentWord = word.toUpperCase()
-    
+
     // Stop loading with success
     stopLoading(true, word)
   } catch (error) {
     console.error('❌ API service failed, using fallback word:', error)
     console.error('❌ Error details:', error instanceof Error ? error.message : String(error))
-    
+
+    // Add retry feedback message
+    addStatusMessage('warning', 'AI generation failed, switching to fallback...')
+
     // Use fallback word based on difficulty
     const fallbackWord = getFallbackWord(difficulty)
     console.log('🔄 Using fallback word')
     gameState.value.currentWord = fallbackWord.toUpperCase()
-    
+
     // Stop loading with error
     stopLoading(false, fallbackWord, error instanceof Error ? error.message : String(error))
   }
@@ -339,8 +358,12 @@ const handleLetterSelected = (letter: string) => {
   // Play victory/defeat sounds when game ends
   if (previousStatus === 'playing' && gameState.value.gameStatus === 'won') {
     setTimeout(() => audioService.playVictory(), 300)
+    // Start preloading words for all difficulties in background after victory
+    setTimeout(() => ollamaService.preloadAllDifficulties(), 1000)
   } else if (previousStatus === 'playing' && gameState.value.gameStatus === 'lost') {
     setTimeout(() => audioService.playDefeat(), 300)
+    // Start preloading words for all difficulties in background after defeat
+    setTimeout(() => ollamaService.preloadAllDifficulties(), 1000)
   }
 }
 
@@ -355,14 +378,14 @@ const handleRestartGame = async () => {
     // Get a new word with the same difficulty
     const word = await ollamaService.generateWord(gameState.value.difficulty)
     gameState.value.currentWord = word.toUpperCase()
-    
+
     // Stop loading with success
     stopLoading(true, word)
   } catch (error) {
     console.warn('Ollama service unavailable, using fallback word:', error)
     const fallbackWord = getFallbackWord(gameState.value.difficulty)
     gameState.value.currentWord = fallbackWord.toUpperCase()
-    
+
     // Stop loading with error
     stopLoading(false, fallbackWord, error instanceof Error ? error.message : String(error))
   }
