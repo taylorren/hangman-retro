@@ -98,12 +98,9 @@ const totalLetters = computed(() => {
 
 const progressPercentage = computed(() => {
   if (totalLetters.value === 0) return 0
-  const uniqueRevealed = new Set(
-    wordLetters.value
-      .filter(letter => letter.revealed)
-      .map(letter => letter.char)
-  ).size
-  return Math.round((uniqueRevealed / totalLetters.value) * 100)
+  // Count actual revealed letter positions, not unique letters
+  const revealedPositions = wordLetters.value.filter(letter => letter.revealed).length
+  return Math.round((revealedPositions / totalLetters.value) * 100)
 })
 
 const isComplete = computed(() => {

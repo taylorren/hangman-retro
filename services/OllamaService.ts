@@ -43,7 +43,7 @@ export class WordGenerationService {
                     throw new Error(data.error || 'Invalid response from server')
                 }
 
-                console.log(`✅ Successfully generated word: ${data.word}`)
+                console.log(`✅ Word generated successfully`)
                 return data.word
 
             } catch (error) {

@@ -54,7 +54,7 @@ export const useGameState = () => {
                 difficulty
             }
 
-            console.log(`New game initialized with word: ${word} (${difficulty} difficulty)`)
+            console.log(`New game initialized (${difficulty} difficulty)`)
         } catch (error) {
             console.error('Failed to initialize game:', error)
             throw new Error('Failed to start new game. Please try again.')

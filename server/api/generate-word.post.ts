@@ -119,7 +119,7 @@ export default defineEventHandler(async (event) => {
             const word = extractWord(content)
             
             if (!isValidEnglishWord(word)) {
-                throw new Error(`Generated word "${word}" is not valid`)
+                throw new Error('Generated word failed validation')
             }
 
             return {
@@ -168,28 +168,29 @@ export default defineEventHandler(async (event) => {
  * Extract a single word from API response
  */
 function extractWord(response: string): string {
-    console.log('🔍 Raw API response:', JSON.stringify(response))
+    console.log('🔍 Processing API response...')
     
     // Clean the response and extract the first word
     const cleaned = response.trim().toLowerCase()
-    console.log('🧹 Cleaned response:', JSON.stringify(cleaned))
+    console.log('🧹 Response cleaned successfully')
 
     // Remove any punctuation and get the first word
     const words = cleaned.replace(/[^\w\s]/g, '').split(/\s+/)
-    console.log('📝 Extracted words:', words)
+    console.log('📝 Word extraction completed')
     
     const firstWord = words[0] || ''
-    console.log('🎯 First word:', JSON.stringify(firstWord))
+    console.log('🎯 First word extracted')
 
     // Ensure it's only alphabetic characters
     const alphabeticWord = firstWord.replace(/[^a-z]/g, '')
-    console.log('🔤 Alphabetic word:', JSON.stringify(alphabeticWord))
+    console.log('🔤 Word validation completed')
 
     if (!alphabeticWord) {
-        console.log('❌ No valid word found in response:', JSON.stringify(response))
+        console.log('❌ No valid word found in API response')
         throw new Error('No valid word found in API response')
     }
 
+    console.log('✅ Word generated successfully')
     return alphabeticWord
 }
 
