@@ -2,8 +2,15 @@
   <div class="game-board">
     <!-- Game Header -->
     <div class="game-header">
-      <h1 class="game-title">RETRO HANGMAN</h1>
-      <div class="game-subtitle">Terminal Edition v1.0</div>
+      <div class="header-content">
+        <div class="title-section">
+          <h1 class="game-title">RETRO HANGMAN</h1>
+          <div class="game-subtitle">Terminal Edition v1.0</div>
+        </div>
+        <div class="header-controls">
+          <ProgressDisplay ref="progressDisplayRef" />
+        </div>
+      </div>
     </div>
 
     <!-- Loading Indicator (shown during word generation) -->
@@ -50,7 +57,7 @@
             <div class="section-header">
               <h3 class="section-title">WORD</h3>
               <div class="section-indicator">
-                {{ revealedLettersCount }}/{{ totalLetters }}
+                {{ gameState.difficulty.toUpperCase() }}
               </div>
             </div>
             <WordDisplay :current-word="gameState.currentWord" :correct-guesses="gameState.correctGuesses"
@@ -92,6 +99,7 @@ import { ref, computed, onMounted } from 'vue'
 import type { GameState, DifficultyLevel } from '../types/game'
 import { getOllamaService } from '../services/OllamaService'
 import { getAudioService } from '../services/AudioService'
+import { getProgressService } from '../services/ProgressService'
 
 // Import components
 import DifficultySelector from './DifficultySelector.vue'
@@ -100,6 +108,7 @@ import WordDisplay from './WordDisplay.vue'
 import LetterGrid from './LetterGrid.vue'
 import GameStatus from './GameStatus.vue'
 import LoadingIndicator from './LoadingIndicator.vue'
+import ProgressDisplay from './ProgressDisplay.vue'
 
 // Game state
 const gameState = ref<GameState>({
@@ -115,14 +124,22 @@ const gameState = ref<GameState>({
 // Services
 const ollamaService = getOllamaService()
 const audioService = getAudioService()
+const progressService = getProgressService()
+
+// Component refs
+const progressDisplayRef = ref<InstanceType<typeof ProgressDisplay>>()
 
 // Loading state
 const isLoading = ref(false)
 const loadingMessage = ref('GENERATING WORD')
 const showLoadingProgress = ref(true)
 const loadingProgress = ref(0)
-const loadingStatusMessages = ref<Array<{ type: 'info' | 'success' | 'warning' | 'error', text: string }>>([])
+const loadingStatusMessages = ref<Array<{ type: 'info' | 'success' | 'warning' | 'error', text: string, timestamp?: number }>>([])
 const loadingInterval = ref<NodeJS.Timeout>()
+
+// Game tracking state
+const gameStartTime = ref<number>(0)
+const gameEndTime = ref<number>(0)
 
 // Computed properties
 const revealedLettersCount = computed(() => {
@@ -326,6 +343,9 @@ const handleDifficultySelected = async (difficulty: DifficultyLevel) => {
   gameState.value.correctGuesses = []
   gameState.value.incorrectGuesses = 0
   gameState.value.gameStatus = 'playing'
+
+  // Start game timing
+  gameStartTime.value = Date.now()
 }
 
 const handleLetterSelected = (letter: string) => {
@@ -355,14 +375,23 @@ const handleLetterSelected = (letter: string) => {
   const previousStatus = gameState.value.gameStatus
   updateGameStatus()
 
-  // Play victory/defeat sounds when game ends
-  if (previousStatus === 'playing' && gameState.value.gameStatus === 'won') {
-    setTimeout(() => audioService.playVictory(), 300)
-    // Start preloading words for all difficulties in background after victory
-    setTimeout(() => ollamaService.preloadAllDifficulties(), 1000)
-  } else if (previousStatus === 'playing' && gameState.value.gameStatus === 'lost') {
-    setTimeout(() => audioService.playDefeat(), 300)
-    // Start preloading words for all difficulties in background after defeat
+  // Handle game completion and progress tracking
+  if (previousStatus === 'playing' && gameState.value.gameStatus !== 'playing') {
+    gameEndTime.value = Date.now()
+
+    console.log('🎮 Game completed! Status:', gameState.value.gameStatus)
+    console.log('🎮 Calling trackGameResult...')
+
+    // Track game result in progress system
+    trackGameResult()
+
+    if (gameState.value.gameStatus === 'won') {
+      setTimeout(() => audioService.playVictory(), 300)
+    } else {
+      setTimeout(() => audioService.playDefeat(), 300)
+    }
+
+    // Start preloading words for all difficulties in background after game completion
     setTimeout(() => ollamaService.preloadAllDifficulties(), 1000)
   }
 }
@@ -415,6 +444,48 @@ const handleResetGame = () => {
   gameState.value.gameStatus = 'playing'
 }
 
+// Progress tracking function
+const trackGameResult = async () => {
+  try {
+    const gameResult = {
+      difficulty: gameState.value.difficulty,
+      wordLength: gameState.value.currentWord.length,
+      guessesUsed: gameState.value.guessedLetters.length,
+      timeElapsed: gameEndTime.value - gameStartTime.value,
+      won: gameState.value.gameStatus === 'won',
+      incorrectGuesses: gameState.value.guessedLetters.filter(letter =>
+        !gameState.value.correctGuesses.includes(letter)
+      ),
+      correctGuesses: gameState.value.correctGuesses
+    }
+
+    console.log('📊 Tracking game result:', {
+      difficulty: gameResult.difficulty,
+      won: gameResult.won,
+      guesses: gameResult.guessesUsed,
+      time: `${(gameResult.timeElapsed / 1000).toFixed(1)}s`
+    })
+
+    const result = await progressService.updateProgress(gameResult)
+
+    console.log('✅ Progress updated successfully')
+
+    // Show achievement notifications if any new achievements were unlocked
+    if (result.newAchievements && result.newAchievements.length > 0) {
+      console.log('🏆 New achievements unlocked:', result.newAchievements.map(a => a.name))
+
+      // Notify the progress display component about new achievements
+      if (progressDisplayRef.value) {
+        progressDisplayRef.value.notifyNewAchievement()
+      }
+    }
+
+  } catch (error) {
+    console.warn('⚠️ Failed to track game result:', error)
+    // Don't block the game if progress tracking fails
+  }
+}
+
 // Initialize component
 onMounted(() => {
   console.log('GameBoard initialized')
@@ -431,7 +502,16 @@ onMounted(() => {
 
 /* Game Header */
 .game-header {
-  @apply text-center mb-8;
+  @apply mb-8;
+}
+
+.header-content {
+  @apply flex justify-between items-center;
+  @apply flex-col md:flex-row space-y-4 md:space-y-0;
+}
+
+.title-section {
+  @apply text-center md:text-left;
 }
 
 .game-title {
@@ -444,6 +524,10 @@ onMounted(() => {
 .game-subtitle {
   @apply text-sm text-retro-green opacity-75;
   @apply tracking-wider;
+}
+
+.header-controls {
+  @apply flex items-center space-x-4;
 }
 
 /* Difficulty Section */

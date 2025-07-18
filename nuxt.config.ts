@@ -6,7 +6,7 @@ export default defineNuxtConfig({
   // TypeScript configuration
   typescript: {
     strict: true,
-    typeCheck: false
+    typeCheck: true
   },
   
   // CSS configuration
