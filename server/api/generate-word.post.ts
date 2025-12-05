@@ -1,5 +1,5 @@
-import type { DifficultyLevel } from '~/types/game'
-import { getEnhancedOllamaPrompt } from '~/utils/difficulty'
+import type { DifficultyLevel } from '../../types/game'
+import { getEnhancedOllamaPrompt } from '../../utils/difficulty'
 
 interface DoubaoRequest {
     model: string
@@ -39,29 +39,32 @@ export default defineEventHandler(async (event) => {
         }
 
         const config = useRuntimeConfig()
-        const apiKey = config.doubaoApiKey
-        const model = config.doubaoModelEndpoint || 'deepseek-r1-250120'
+        // Try runtime config first, then fall back to process.env
+        const apiKey = config.doubaoApiKey || process.env.DOUBAO_API_KEY
+        const model = config.doubaoModelEndpoint || process.env.DOUBAO_MODEL_ENDPOINT || 'deepseek-r1-250120'
 
         if (!apiKey) {
             throw createError({
                 statusCode: 500,
-                statusMessage: 'API key not configured'
+                statusMessage: 'API key not configured. Please set DOUBAO_API_KEY environment variable.'
             })
         }
 
         const baseUrl = 'https://ark.cn-beijing.volces.com/api/v3/chat/completions'
         const timeout = 30000
 
+        const prompt = getEnhancedOllamaPrompt(difficulty)
+        
         const requestBody: DoubaoRequest = {
             model,
             messages: [
                 {
                     role: 'system',
-                    content: 'You are an English word generator for a hangman game. Generate only ONE English word based on the difficulty level requested. Return ONLY the word, no explanations, no Chinese text, no punctuation.'
+                    content: 'You are an English word generator for a hangman game. Return ONLY the word, no explanations, no Chinese text, no punctuation.'
                 },
                 {
                     role: 'user',
-                    content: `Generate one ${difficulty.toUpperCase()} level English word. Return only the word.`
+                    content: prompt
                 }
             ],
             temperature: 0.8,

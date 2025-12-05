@@ -61,30 +61,176 @@
 
 ## 🚀 快速开始
 
-### 环境要求
-- Node.js 22.17，这是为了保证和Nuxt 4以及Tailwind的兼容性。
-- npm 或 yarn
+### 🐳 Docker 部署 (推荐)
 
-### 安装依赖
+#### 🚀 一键启动脚本 (最简单)
+
+```bash
+# 下载并运行启动脚本
+curl -fsSL https://raw.githubusercontent.com/taylorren/hangman-retro/main/docker-run.sh | bash
+
+# 或者手动下载后运行
+wget https://raw.githubusercontent.com/taylorren/hangman-retro/main/docker-run.sh
+chmod +x docker-run.sh
+./docker-run.sh
+```
+
+#### 📋 手动部署
+
+```bash
+# 1. 拉取Docker镜像
+docker pull taylorren/hangman-retro:latest
+
+# 2. 创建环境变量文件
+cat > .env << EOF
+DOUBAO_API_KEY=your_actual_doubao_api_key_here
+DOUBAO_MODEL_ENDPOINT=doubao-seed-1.6-250615
+EOF
+
+# 3. 运行容器
+docker run -d \
+  --name hangman-retro \
+  -p 3000:3000 \
+  --env-file .env \
+  --restart unless-stopped \
+  taylorren/hangman-retro:latest
+
+# 4. 访问游戏
+# 打开浏览器访问 http://localhost:3000
+```
+
+#### 🐙 使用 Docker Compose
+
+```bash
+# 下载 docker-compose.yml
+curl -O https://raw.githubusercontent.com/taylorren/hangman-retro/main/docker-compose.yml
+
+# 创建环境文件
+cp .env.example .env
+# 编辑 .env 文件，添加你的API密钥
+
+# 启动服务
+docker-compose up -d
+```
+
+#### 🔑 API密钥配置
+
+⚠️ **重要**: 需要使用自己的豆包API密钥才能使用AI生成词汇功能
+
+**获取API密钥:**
+1. 访问 [火山引擎控制台](https://console.volcengine.com/)
+2. 创建应用并获取API密钥
+3. 将 `your_actual_doubao_api_key_here` 替换为实际密钥
+
+**无API密钥也能玩**: 游戏会自动使用内置英文词库，功能完整！
+
+### 🛠️ 本地开发
+
+#### 环境要求
+- Node.js 20+ (推荐 20.19.0 或更高版本)
+- npm 或 yarn
+- Docker (可选，用于容器化部署)
+
+#### 安装依赖
 ```bash
 npm install
 ```
 
-### 配置环境变量
+#### 配置环境变量
 创建 `.env` 文件并添加豆包API配置：
 ```env
 DOUBAO_API_KEY=your_doubao_api_key_here
-DOUBAO_MODEL_ENDPOINT=your_model_endpoint # 我用了`doubao-seed-1.6-250615`
+DOUBAO_MODEL_ENDPOINT=doubao-seed-1.6-250615
 ```
 
-### 开发模式
+#### 开发模式
 ```bash
 npm run dev
 ```
 
-### 构建生产版本
+#### 构建生产版本
 ```bash
 npm run build
+```
+
+#### 🐳 本地Docker构建
+```bash
+# 构建镜像
+docker build -t hangman-retro .
+
+# 运行容器
+docker run -d -p 3000:3000 --env-file .env --name hangman-retro hangman-retro
+```
+
+### 🌐 Apache虚拟主机配置
+
+如果你想通过自定义域名访问游戏，可以配置Apache反向代理：
+
+```apache
+# /etc/apache2/sites-available/hangman.yourdomain.conf
+<VirtualHost *:80>
+    ServerName hangman.yourdomain
+    
+    ProxyPreserveHost On
+    ProxyRequests Off
+    ProxyPass / http://localhost:3000/
+    ProxyPassReverse / http://localhost:3000/
+    
+    ErrorLog ${APACHE_LOG_DIR}/hangman_error.log
+    CustomLog ${APACHE_LOG_DIR}/hangman_access.log combined
+</VirtualHost>
+```
+
+```bash
+# 启用站点
+sudo a2ensite hangman.yourdomain.conf
+sudo systemctl reload apache2
+```
+
+## 🐳 Docker 镜像信息
+
+### 镜像特性
+- **基础镜像**: Node.js 20 Slim (Debian-based)
+- **镜像大小**: ~206MB
+- **架构支持**: linux/amd64
+- **安全特性**: 非root用户运行
+- **生产优化**: 多阶段构建，仅包含运行时文件
+
+### 环境变量
+| 变量名 | 描述 | 默认值 | 必需 |
+|--------|------|--------|------|
+| `DOUBAO_API_KEY` | 豆包API密钥 | - | ✅ |
+| `DOUBAO_MODEL_ENDPOINT` | 豆包模型端点 | - | ❌ |
+| `NUXT_HOST` | 服务器监听地址 | `0.0.0.0` | ❌ |
+| `NUXT_PORT` | 服务器端口 | `3000` | ❌ |
+
+### 容器健康检查
+```bash
+# 检查容器状态
+docker ps
+
+# 查看容器日志
+docker logs hangman-retro
+
+# 进入容器调试
+docker exec -it hangman-retro /bin/bash
+```
+
+### 🚀 发布到Docker Hub
+
+如果你想发布自己的版本到Docker Hub：
+
+```bash
+# 1. 设置你的Docker Hub用户名
+export DOCKER_USERNAME=yourusername
+
+# 2. 运行发布脚本
+./publish-docker.sh
+
+# 或者手动发布
+docker login
+docker tag hangman-retro yourusername/hangman-retro:latest
+docker push yourusername/hangman-retro:latest
 ```
 
 ### 运行测试
