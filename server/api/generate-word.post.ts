@@ -168,18 +168,18 @@ export default defineEventHandler(async (event) => {
         let model: string
         
         if (aiProvider === 'deepseek') {
-            apiKey = config.deepseekApiKey || process.env.DEEPSEEK_API_KEY
+            apiKey = config.deepseekApiKey || process.env.DEEPSEEK_API_KEY || ''
             model = config.deepseekModel || process.env.DEEPSEEK_MODEL || 'deepseek-chat'
         } else if (aiProvider === 'zenmux') {
-            apiKey = config.zenmuxApiKey || process.env.ZENMUX_API_KEY
+            apiKey = config.zenmuxApiKey || process.env.ZENMUX_API_KEY || ''
             model = config.zenmuxModel || process.env.ZENMUX_MODEL || 'gpt-4o-mini'
         } else {
             // Default to Doubao
-            apiKey = config.doubaoApiKey || process.env.DOUBAO_API_KEY
+            apiKey = config.doubaoApiKey || process.env.DOUBAO_API_KEY || ''
             model = config.doubaoModelEndpoint || process.env.DOUBAO_MODEL_ENDPOINT || 'deepseek-r1-250120'
         }
 
-        if (!apiKey) {
+        if (!apiKey || apiKey.trim() === '') {
             throw createError({
                 statusCode: 500,
                 statusMessage: `API key not configured. Please set ${aiProvider.toUpperCase()}_API_KEY environment variable.`
@@ -193,12 +193,14 @@ export default defineEventHandler(async (event) => {
         
         // Try multiple times to get a valid word
         for (let attempt = 1; attempt <= maxRetries; attempt++) {
+            let timeoutId: NodeJS.Timeout | null = null
+            
             try {
                 const prompt = generateEnhancedPrompt(difficulty)
                 console.log(`🔄 Attempt ${attempt}/${maxRetries} for ${difficulty} level`)
 
                 const controller = new AbortController()
-                const timeoutId = setTimeout(() => controller.abort(), timeout)
+                timeoutId = setTimeout(() => controller.abort(), timeout)
 
                 let content: string
                 
@@ -210,7 +212,10 @@ export default defineEventHandler(async (event) => {
                     content = await callDoubaoAPI(apiKey, model, prompt)
                 }
 
-                clearTimeout(timeoutId)
+                if (timeoutId) {
+                    clearTimeout(timeoutId)
+                    timeoutId = null
+                }
 
                 // Extract and validate the word
                 const word = extractWord(content)
@@ -231,7 +236,11 @@ export default defineEventHandler(async (event) => {
                 }
 
             } catch (error) {
-                clearTimeout(timeoutId)
+                if (timeoutId) {
+                    clearTimeout(timeoutId)
+                    timeoutId = null
+                }
+                
                 lastError = error instanceof Error ? error : new Error(String(error))
                 console.log(`❌ Attempt ${attempt} failed: ${lastError.message}`)
                 
@@ -264,10 +273,10 @@ export default defineEventHandler(async (event) => {
             })
         }
 
-    } catch (error) {
+    } catch (error: unknown) {
         console.error('Word generation error:', error)
         
-        if (error.statusCode) {
+        if (error && typeof error === 'object' && 'statusCode' in error) {
             throw error // Re-throw HTTP errors
         }
         
