@@ -3,6 +3,13 @@
 import type { DifficultyConfig, DifficultyLevel } from './game';
 
 export const DIFFICULTY_CONFIGS: Record<DifficultyLevel, DifficultyConfig> = {
+    junior: {
+        level: 'junior',
+        wordLength: { min: 4, max: 7 },
+        categories: ['animals', 'food', 'objects', 'nature'],
+        description: '初中英语词汇。适合7-9年级学生。',
+        ollamaPrompt: 'Generate a single English word suitable for junior high school students (grades 7-9). The word must be 4-7 letters long and from everyday categories like animals, food, objects, or nature. Choose common vocabulary that middle school students would know. Return only the word, nothing else.'
+    },
     cet4: {
         level: 'cet4',
         wordLength: { min: 4, max: 6 },
@@ -35,6 +42,12 @@ export const DIFFICULTY_CONFIGS: Record<DifficultyLevel, DifficultyConfig> = {
 
 // Fallback word lists organized by difficulty and category
 export const FALLBACK_WORDS = {
+    junior: {
+        animals: ['cat', 'dog', 'bird', 'fish', 'bear', 'lion', 'tiger', 'horse', 'sheep', 'rabbit'],
+        food: ['apple', 'bread', 'water', 'milk', 'rice', 'egg', 'cake', 'fish', 'meat', 'fruit'],
+        objects: ['book', 'desk', 'chair', 'pen', 'door', 'window', 'clock', 'phone', 'bag', 'key'],
+        nature: ['tree', 'flower', 'river', 'mountain', 'sun', 'moon', 'star', 'cloud', 'rain', 'wind']
+    },
     cet4: {
         animals: ['cat', 'dog', 'bird', 'fish', 'bear', 'lion', 'wolf', 'deer', 'frog', 'duck'],
         food: ['apple', 'bread', 'cake', 'milk', 'rice', 'meat', 'soup', 'pizza', 'pasta', 'salad'],

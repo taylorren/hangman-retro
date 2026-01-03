@@ -118,7 +118,7 @@ const gameState = ref<GameState>({
   incorrectGuesses: 0,
   gameStatus: 'playing',
   maxIncorrectGuesses: 6,
-  difficulty: 'cet4' // 设置默认难度
+  difficulty: 'junior' // 设置默认难度
 })
 
 // Services
@@ -196,6 +196,7 @@ const updateGameStatus = () => {
 
 // Fallback words for each difficulty
 const fallbackWords = {
+  junior: ['CAT', 'DOG', 'BOOK', 'TREE', 'WATER', 'APPLE', 'BIRD', 'FISH', 'FLOWER', 'RIVER'],
   cet4: ['CAT', 'DOG', 'BOOK', 'TREE', 'HOUSE', 'WATER', 'HAPPY', 'MUSIC'],
   cet6: ['COMPUTER', 'LANGUAGE', 'CULTURE', 'SCIENCE', 'HISTORY', 'NATURE', 'FREEDOM', 'JOURNEY'],
   toefl: ['ARCHITECTURE', 'PHILOSOPHY', 'DEMOCRACY', 'TECHNOLOGY', 'ENVIRONMENT', 'LITERATURE', 'PSYCHOLOGY', 'ECONOMICS'],
@@ -215,6 +216,7 @@ const startLoading = (difficulty: DifficultyLevel) => {
 
   // Contextual loading messages based on difficulty
   const difficultyMessages = {
+    junior: 'CONSULTING AI FOR JUNIOR HIGH VOCABULARY',
     cet4: 'CONSULTING AI FOR CET-4 VOCABULARY',
     cet6: 'CONSULTING AI FOR CET-6 VOCABULARY',
     toefl: 'CONSULTING AI FOR TOEFL VOCABULARY',
@@ -225,6 +227,7 @@ const startLoading = (difficulty: DifficultyLevel) => {
 
   // Add contextual initial status message
   const difficultyDescriptions = {
+    junior: 'junior high school vocabulary (4-7 letters)',
     cet4: 'basic English vocabulary (4-6 letters)',
     cet6: 'intermediate English vocabulary (6-8 letters)',
     toefl: 'academic English vocabulary (8-12 letters)',
@@ -433,7 +436,7 @@ const handleNewGame = () => {
   gameState.value.correctGuesses = []
   gameState.value.incorrectGuesses = 0
   gameState.value.gameStatus = 'playing'
-  gameState.value.difficulty = 'cet4' // 重置为默认难度
+  gameState.value.difficulty = 'junior' // 重置为默认难度
 }
 
 const handleResetGame = () => {
@@ -533,7 +536,7 @@ onMounted(() => {
 /* Difficulty Section */
 .difficulty-section {
   @apply flex flex-col items-center space-y-6;
-  @apply max-w-2xl mx-auto;
+  @apply max-w-7xl mx-auto;
 }
 
 .prompt {

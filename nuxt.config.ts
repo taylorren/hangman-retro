@@ -23,8 +23,13 @@ export default defineNuxtConfig({
   // Runtime configuration to expose environment variables to client
   runtimeConfig: {
     // Private keys (only available on server-side)
+    aiProvider: process.env.AI_PROVIDER,
     doubaoApiKey: process.env.DOUBAO_API_KEY,
     doubaoModelEndpoint: process.env.DOUBAO_MODEL_ENDPOINT,
+    deepseekApiKey: process.env.DEEPSEEK_API_KEY,
+    deepseekModel: process.env.DEEPSEEK_MODEL,
+    zenmuxApiKey: process.env.ZENMUX_API_KEY,
+    zenmuxModel: process.env.ZENMUX_MODEL,
 
     // Public keys (exposed to client-side)
     public: {

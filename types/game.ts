@@ -1,6 +1,6 @@
 // Core game types and interfaces
 
-export type DifficultyLevel = 'cet4' | 'cet6' | 'toefl' | 'gre';
+export type DifficultyLevel = 'junior' | 'cet4' | 'cet6' | 'toefl' | 'gre';
 
 export type WordCategory = 
   | 'animals' 

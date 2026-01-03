@@ -5,7 +5,7 @@ import { DIFFICULTY_CONFIGS, FALLBACK_WORDS } from '../types/constants'
  * Get difficulty configuration for a given level
  */
 export function getDifficultyConfig(level: DifficultyLevel) {
-  return DIFFICULTY_CONFIGS[level] || DIFFICULTY_CONFIGS.cet4
+  return DIFFICULTY_CONFIGS[level] || DIFFICULTY_CONFIGS.junior
 }
 
 /**
@@ -74,7 +74,7 @@ export function validateWordForDifficulty(word: string, difficulty: DifficultyLe
  */
 export function getCategoriesForDifficulty(difficulty: DifficultyLevel): WordCategory[] {
   const config = getDifficultyConfig(difficulty)
-  return config?.categories || DIFFICULTY_CONFIGS.cet4.categories
+  return config?.categories || DIFFICULTY_CONFIGS.junior.categories
 }
 
 /**
@@ -91,6 +91,7 @@ export function getOllamaPrompt(difficulty: DifficultyLevel): string {
 export function getEnhancedOllamaPrompt(difficulty: DifficultyLevel): string {
   // 中文难度级别映射
   const difficultyNames = {
+    junior: '初中',
     cet4: 'CET-4',
     cet6: 'CET-6',
     toefl: 'TOEFL',
