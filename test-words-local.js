@@ -45,23 +45,6 @@ async function testWordGeneration() {
   console.log(`📡 Server: ${SERVER_URL}`)
   console.log()
 
-  // Test server connectivity
-  try {
-    const response = await fetch(`${SERVER_URL}/api/generate-word`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ difficulty: 'junior' }),
-      timeout: 5000
-    })
-    console.log('✅ Server is reachable')
-  } catch (error) {
-    console.error('❌ Cannot reach server. Make sure your app is running on localhost:3000')
-    console.log('Run: npm run dev')
-    process.exit(1)
-  }
-
-  console.log()
-
   for (const difficulty of difficulties) {
     console.log(`🎯 Testing ${difficulty.toUpperCase()} level:`)
     console.log('-'.repeat(40))

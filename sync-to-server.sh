@@ -32,14 +32,7 @@ else
 fi
 
 # Also sync .env file
-echo "📤 Syncing .env file..."
-scp -P $SSH_PORT .env $SSH_USER@$VPS_HOST:$REMOTE_PATH/
-
-if [ $? -eq 0 ]; then
-    echo "✅ .env synced successfully"
-else
-    echo "⚠️  .env sync failed (might not exist or permission issue)"
-fi
+echo "📤 Skipping .env sync (will be updated manually on server)..."
 
 # Restart PM2 on remote server
 echo "🔄 Restarting hangman app on VPS..."
