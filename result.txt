@@ -1,0 +1,178 @@
+🎮 Testing Hangman Word Generation via Local Server
+============================================================
+📡 Server: http://localhost:3000
+
+🎯 Testing JUNIOR level:
+----------------------------------------
+   1/10: ✅ DUCK (4 letters)
+   2/10: ✅ HOOT (4 letters)
+   3/10: ✅ EMBARK (6 letters)
+   4/10: ✅ BARK (4 letters)
+   5/10: ✅ CARPET (6 letters)
+   6/10: ✅ CLOTH (5 letters)
+   7/10: ✅ PUPILS (6 letters)
+   8/10: ✅ BELT (4 letters)
+   9/10: ✅ EDUCATE (7 letters)
+  10/10: ✅ HIVE (4 letters)
+
+📊 Results for JUNIOR:
+   ✅ Success: 10/10
+   ❌ Errors: 0/10
+   📝 Words: DUCK, HOOT, EMBARK, BARK, CARPET, CLOTH, PUPILS, BELT, EDUCATE, HIVE
+   📏 Length: avg=5.0, min=4, max=7
+
+🎯 Testing CET4 level:
+----------------------------------------
+   1/10: ✅ SEED (4 letters)
+   2/10: ✅ ACAD (4 letters)
+   3/10: ❌ Failed to generate word: Server error 500: {
+  "error": true,
+  "url": "http://localhost:3000/api/generate-word",
+  "statusCode": 500,
+  "statusMessage": "Generated word \"academic\" failed validation: Length 8 not in range 4-6 for cet4",
+  "message": "Generated word \"academic\" failed validation: Length 8 not in range 4-6 for cet4",
+  "stack": [
+    "Generated word \"academic\" failed validation: Length 8 not in range 4-6 for cet4",
+    "at createError (/home/tr/www/hangman/node_modules/h3/dist/index.mjs:71:15)",
+    "at Object.handler (/home/tr/www/hangman/server/api/generate-word.post.ts:275:0)",
+    "at process.processTicksAndRejections (node:internal/process/task_queues:105:5)",
+    "at async file:///home/tr/www/hangman/node_modules/h3/dist/index.mjs:2003:19)",
+    "at async Object.callAsync (/home/tr/www/hangman/node_modules/unctx/dist/index.mjs:72:16)",
+    "at async Server.toNodeHandle (/home/tr/www/hangman/node_modules/h3/dist/index.mjs:2295:7)"
+  ]
+}
+   4/10: ✅ REFORM (6 letters)
+   5/10: ✅ COHORT (6 letters)
+   6/10: ✅ ACAD (4 letters)
+   7/10: ✅ DUST (4 letters)
+   8/10: ✅ GLEAM (5 letters)
+   9/10: ✅ ADEPT (5 letters)
+  10/10: ✅ SEED (4 letters)
+
+📊 Results for CET4:
+   ✅ Success: 9/10
+   ❌ Errors: 1/10
+   📝 Words: SEED, ACAD, REFORM, COHORT, ACAD, DUST, GLEAM, ADEPT, SEED
+   📏 Length: avg=4.7, min=4, max=6
+   ⚠️  Duplicates found: 2
+
+🎯 Testing CET6 level:
+----------------------------------------
+   1/10: ✅ ECLIPSED (8 letters)
+   2/10: ✅ PARADOX (7 letters)
+   3/10: ✅ PARAGON (7 letters)
+   4/10: ✅ INNOVATE (8 letters)
+   5/10: ✅ INNOVATE (8 letters)
+   6/10: ✅ PROLIFIC (8 letters)
+   7/10: ✅ GRADUATE (8 letters)
+   8/10: ✅ BLOSSOM (7 letters)
+   9/10: ✅ RADIANT (7 letters)
+  10/10: ✅ INNOVATE (8 letters)
+
+📊 Results for CET6:
+   ✅ Success: 10/10
+   ❌ Errors: 0/10
+   📝 Words: ECLIPSED, PARADOX, PARAGON, INNOVATE, INNOVATE, PROLIFIC, GRADUATE, BLOSSOM, RADIANT, INNOVATE
+   📏 Length: avg=7.6, min=7, max=8
+   ⚠️  Duplicates found: 2
+
+🎯 Testing TOEFL level:
+----------------------------------------
+   1/10: ✅ ENRICHMENT (10 letters)
+   2/10: ✅ COGNIZANT (9 letters)
+   3/10: ✅ SYLLOGISM (9 letters)
+   4/10: ✅ DILIGENCE (9 letters)
+   5/10: ✅ DISPARATE (9 letters)
+   6/10: ✅ INNOVATE (8 letters)
+   7/10: ✅ CULTIVATE (9 letters)
+   8/10: ✅ ACQUAINT (8 letters)
+   9/10: ✅ SCHOLAR (7 letters)
+  10/10: ❌ Failed to generate word: Server error 500: {
+  "error": true,
+  "url": "http://localhost:3000/api/generate-word",
+  "statusCode": 500,
+  "statusMessage": "Generated word \"paradoxical\" failed validation: Length 11 not in range 7-10 for toefl",
+  "message": "Generated word \"paradoxical\" failed validation: Length 11 not in range 7-10 for toefl",
+  "stack": [
+    "Generated word \"paradoxical\" failed validation: Length 11 not in range 7-10 for toefl",
+    "at createError (/home/tr/www/hangman/node_modules/h3/dist/index.mjs:71:15)",
+    "at Object.handler (/home/tr/www/hangman/server/api/generate-word.post.ts:275:0)",
+    "at process.processTicksAndRejections (node:internal/process/task_queues:105:5)",
+    "at async file:///home/tr/www/hangman/node_modules/h3/dist/index.mjs:2003:19)",
+    "at async Object.callAsync (/home/tr/www/hangman/node_modules/unctx/dist/index.mjs:72:16)",
+    "at async Server.toNodeHandle (/home/tr/www/hangman/node_modules/h3/dist/index.mjs:2295:7)"
+  ]
+}
+
+📊 Results for TOEFL:
+   ✅ Success: 9/10
+   ❌ Errors: 1/10
+   📝 Words: ENRICHMENT, COGNIZANT, SYLLOGISM, DILIGENCE, DISPARATE, INNOVATE, CULTIVATE, ACQUAINT, SCHOLAR
+   📏 Length: avg=8.7, min=7, max=10
+
+🎯 Testing GRE level:
+----------------------------------------
+   1/10: ❌ Failed to generate word: Server error 500: {
+  "error": true,
+  "url": "http://localhost:3000/api/generate-word",
+  "statusCode": 500,
+  "statusMessage": "Generated word \"enigma\" failed validation: Length 6 not in range 8-12 for gre",
+  "message": "Generated word \"enigma\" failed validation: Length 6 not in range 8-12 for gre",
+  "stack": [
+    "Generated word \"enigma\" failed validation: Length 6 not in range 8-12 for gre",
+    "at createError (/home/tr/www/hangman/node_modules/h3/dist/index.mjs:71:15)",
+    "at Object.handler (/home/tr/www/hangman/server/api/generate-word.post.ts:275:0)",
+    "at process.processTicksAndRejections (node:internal/process/task_queues:105:5)",
+    "at async file:///home/tr/www/hangman/node_modules/h3/dist/index.mjs:2003:19)",
+    "at async Object.callAsync (/home/tr/www/hangman/node_modules/unctx/dist/index.mjs:72:16)",
+    "at async Server.toNodeHandle (/home/tr/www/hangman/node_modules/h3/dist/index.mjs:2295:7)"
+  ]
+}
+   2/10: ✅ EPHEMERAL (9 letters)
+   3/10: ✅ ACQUIESCE (9 letters)
+   4/10: ❌ Failed to generate word: Server error 500: {
+  "error": true,
+  "url": "http://localhost:3000/api/generate-word",
+  "statusCode": 500,
+  "statusMessage": "Generated word \"enigma\" failed validation: Length 6 not in range 8-12 for gre",
+  "message": "Generated word \"enigma\" failed validation: Length 6 not in range 8-12 for gre",
+  "stack": [
+    "Generated word \"enigma\" failed validation: Length 6 not in range 8-12 for gre",
+    "at createError (/home/tr/www/hangman/node_modules/h3/dist/index.mjs:71:15)",
+    "at Object.handler (/home/tr/www/hangman/server/api/generate-word.post.ts:275:0)",
+    "at process.processTicksAndRejections (node:internal/process/task_queues:105:5)",
+    "at async file:///home/tr/www/hangman/node_modules/h3/dist/index.mjs:2003:19)",
+    "at async Object.callAsync (/home/tr/www/hangman/node_modules/unctx/dist/index.mjs:72:16)",
+    "at async Server.toNodeHandle (/home/tr/www/hangman/node_modules/h3/dist/index.mjs:2295:7)"
+  ]
+}
+   5/10: ✅ EUPHORICIZED (12 letters)
+   6/10: ✅ EPIDEMIOLOGY (12 letters)
+   7/10: ❌ Failed to generate word: Server error 500: {
+  "error": true,
+  "url": "http://localhost:3000/api/generate-word",
+  "statusCode": 500,
+  "statusMessage": "Generated word \"reinforcementlearning\" failed validation: Length 21 not in range 8-12 for gre",
+  "message": "Generated word \"reinforcementlearning\" failed validation: Length 21 not in range 8-12 for gre",
+  "stack": [
+    "Generated word \"reinforcementlearning\" failed validation: Length 21 not in range 8-12 for gre",
+    "at createError (/home/tr/www/hangman/node_modules/h3/dist/index.mjs:71:15)",
+    "at Object.handler (/home/tr/www/hangman/server/api/generate-word.post.ts:275:0)",
+    "at process.processTicksAndRejections (node:internal/process/task_queues:105:5)",
+    "at async file:///home/tr/www/hangman/node_modules/h3/dist/index.mjs:2003:19)",
+    "at async Object.callAsync (/home/tr/www/hangman/node_modules/unctx/dist/index.mjs:72:16)",
+    "at async Server.toNodeHandle (/home/tr/www/hangman/node_modules/h3/dist/index.mjs:2295:7)"
+  ]
+}
+   8/10: ✅ ENIGMATISM (10 letters)
+   9/10: ✅ EPHEMERAL (9 letters)
+  10/10: ✅ INCONGRUOUS (11 letters)
+
+📊 Results for GRE:
+   ✅ Success: 7/10
+   ❌ Errors: 3/10
+   📝 Words: EPHEMERAL, ACQUIESCE, EUPHORICIZED, EPIDEMIOLOGY, ENIGMATISM, EPHEMERAL, INCONGRUOUS
+   📏 Length: avg=10.3, min=9, max=12
+   ⚠️  Duplicates found: 1
+
+🏁 Test completed!

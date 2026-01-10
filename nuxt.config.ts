@@ -30,6 +30,8 @@ export default defineNuxtConfig({
     deepseekModel: process.env.DEEPSEEK_MODEL,
     zenmuxApiKey: process.env.ZENMUX_API_KEY,
     zenmuxModel: process.env.ZENMUX_MODEL,
+    ollamaBaseUrl: process.env.OLLAMA_BASE_URL,
+    ollamaModel: process.env.OLLAMA_MODEL,
 
     // Public keys (exposed to client-side)
     public: {

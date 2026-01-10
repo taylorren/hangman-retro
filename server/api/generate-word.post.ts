@@ -173,6 +173,9 @@ export default defineEventHandler(async (event) => {
         } else if (aiProvider === 'zenmux') {
             apiKey = config.zenmuxApiKey || process.env.ZENMUX_API_KEY || ''
             model = config.zenmuxModel || process.env.ZENMUX_MODEL || 'gpt-4o-mini'
+        } else if (aiProvider === 'ollama') {
+            apiKey = 'ollama' // Ollama doesn't need API key
+            model = config.ollamaModel || process.env.OLLAMA_MODEL || 'llama3.2'
         } else {
             // Default to Doubao
             apiKey = config.doubaoApiKey || process.env.DOUBAO_API_KEY || ''
@@ -208,6 +211,8 @@ export default defineEventHandler(async (event) => {
                     content = await callDeepseekAPI(apiKey, model, prompt)
                 } else if (aiProvider === 'zenmux') {
                     content = await callZenmuxAPI(apiKey, model, prompt)
+                } else if (aiProvider === 'ollama') {
+                    content = await callOllamaAPI(model, prompt)
                 } else {
                     content = await callDoubaoAPI(apiKey, model, prompt)
                 }
@@ -450,4 +455,58 @@ async function callZenmuxAPI(apiKey: string, model: string, prompt: string): Pro
     }
 
     return content
+}
+
+async function callOllamaAPI(model: string, prompt: string): Promise<string> {
+    const config = useRuntimeConfig()
+    const baseUrl = config.ollamaBaseUrl || process.env.OLLAMA_BASE_URL || 'http://192.168.130.2:11434'
+    
+    // Use the simpler /api/generate endpoint instead of /api/chat
+    const requestBody = {
+        model: model,
+        prompt: `Generate one English word based on this request: ${prompt}. Return only the word.`,
+        stream: false,
+        options: {
+            temperature: 0.8,
+            num_predict: 20
+        }
+    }
+
+    const response = await fetch(`${baseUrl}/api/generate`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(requestBody)
+    })
+
+    if (!response.ok) {
+        let errorMessage = `HTTP ${response.status}: ${response.statusText}`
+        try {
+            const errorData = await response.json()
+            if (errorData.error) {
+                errorMessage += ` - ${errorData.error}`
+            }
+        } catch {
+            // Ignore JSON parsing errors for error responses
+        }
+        throw new Error(errorMessage)
+    }
+
+    const data = await response.json()
+
+    if (data.error) {
+        throw new Error(`Ollama error: ${data.error}`)
+    }
+
+    // Check the /api/generate response structure (different from /api/chat)
+    console.log('🔍 Ollama raw response:', JSON.stringify(data, null, 2))
+    
+    if (!data.response || data.response.trim() === '') {
+        console.error('❌ Ollama response structure:', JSON.stringify(data, null, 2))
+        throw new Error('No response returned from Ollama')
+    }
+
+    console.log('✅ Ollama returned:', data.response.trim())
+    return data.response.trim()
 }
